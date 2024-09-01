@@ -1,0 +1,57 @@
+json
+{
+  "Comment": "Fluxo de trabalho para assistente de delivery usando AWS Step Functions",
+  "StartAt": "ReceberPedido",
+  "States": {
+    "ReceberPedido": {
+      "Type": "Pass",
+      "Result": "Pedido recebido",
+      "Next": "VerificarDisponibilidade"
+    },
+    "VerificarDisponibilidade": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:VerificarDisponibilidade",
+      "Next": "CalcularTempoEntrega",
+      "Catch": [
+        {
+          "ErrorEquals": ["ItemIndisponivel"],
+          "Next": "NotificarIndisponibilidade"
+        }
+      ]
+    },
+    "NotificarIndisponibilidade": {
+      "Type": "Fail",
+      "Error": "ItemIndisponivel",
+      "Cause": "O item solicitado não está disponível."
+    },
+    "CalcularTempoEntrega": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:CalcularTempoEntrega",
+      "Next": "ProcessarPagamento"
+    },
+    "ProcessarPagamento": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:ProcessarPagamento",
+      "Next": "ConfirmarPedido",
+      "Catch": [
+        {
+          "ErrorEquals": ["PagamentoFalhou"],
+          "Next": "NotificarFalhaPagamento"
+        }
+      ]
+    },
+    "NotificarFalhaPagamento": {
+      "Type": "Fail",
+      "Error": "PagamentoFalhou",
+      "Cause": "O pagamento não foi autorizado."
+    },
+    "ConfirmarPedido": {
+      "Type": "Task",
+      "Resource": "arn:aws:lambda:REGION:ACCOUNT_ID:function:ConfirmarPedido",
+      "Next": "EnviarConfirmacao"
+    },
+    "EnviarConfirmacao": {
+      "Type": "Succeed"
+    }
+  }
+}
