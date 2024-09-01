@@ -32,6 +32,7 @@ Escalabilidade: A ASL foi projetada para lidar com workflows complexos e escalá
   Exemplo de Comparação:Workflow Studio: Você arrasta um bloco de tarefa (Task) para a interface e conecta a outros blocos.ASL: A tarefa seria representada em JSON como algo assim:
   
   {
+  
   "Type": "Task",
   
   "Resource": "arn:aws:lambda:us-east-1:123456789012:function:my-function",
